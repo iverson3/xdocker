@@ -18,6 +18,7 @@ import (
 const defaultMountPoint = "/usr/tempmount/"
 
 type BuildContext struct {
+	CmdLines [][]string
 	ContextDir string
 	CurContainerId string
 	// map[容器名]容器ID
@@ -25,7 +26,8 @@ type BuildContext struct {
 	// 容器ID 是dockerfile中 FROM命令创建的容器的容器ID
 	ContainerMap map[string]string
 	WorkDir string    // 工作目录
-	Args map[string]string   // 构建过程中需要用到的环境变量
+	Args map[string]string   // 存放构建过程中需要用到的全局变量
+	Envs map[string]map[string]string // 存放各阶段ENV设置的环境变量
 	Volume map[string]map[string]string
 }
 
@@ -68,6 +70,9 @@ func (dc *DockerfileFromCmd) FormatCheck(buildCtx *BuildContext, cmdLine []strin
 	if len(cmdLine) == 3 && cmdLine[1] != "as" && cmdLine[1] != "AS" {
 		return nil, false
 	}
+
+	// 初始化对应FROM下的环境变量map (key是FROM中的镜像名)
+	buildCtx.Envs[cmdLine[0]] = make(map[string]string)
 	return cmdLine, true
 }
 func (dc *DockerfileFromCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err error) {
@@ -119,9 +124,22 @@ func (dc *DockerfileFromCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err
 	// 将上下文目录挂载到容器指定目录中，方便之后的命令需要拷贝文件等操作
 	volume := fmt.Sprintf("%s:%s", buildCtx.ContextDir, defaultMountPoint)
 
+	// 组装环境变量的命令部分
+	var envs string
+	for k, v := range buildCtx.Envs[cmdLine[0]] {
+		envs = fmt.Sprintf("%s -e %s=%s", envs, k, v)
+	}
+	// 去除字符串两边的空格 （注意：命令中不能存在多余的空格，否则容器在启动的时候会失败）
+	envs = strings.TrimSpace(envs)
+
 	// ./xdocker run -net xdocker0 -p 8989:8000 -v path1:path2 -name c1 -d tcpserver-alpine@3.1.0 gotcpserver
 	// 构建启动容器的命令
-	cmd := fmt.Sprintf("xdocker run -v %s -net %s -d %s top", volume, model.DefaultNetworkName, image)
+	var cmd string
+	if envs == "" {
+		cmd = fmt.Sprintf("xdocker run -v %s -net %s -d %s top", volume, model.DefaultNetworkName, image)
+	} else {
+		cmd = fmt.Sprintf("xdocker run -v %s -net %s %s -d %s top", volume, model.DefaultNetworkName, envs, image)
+	}
 	// 因为上面启动容器采用的是 -d 后台模式，所以cmd.Run()返回了也不能表示容器进程已经完全运行起来了
 	cmdResult, err := util.RunCommand(cmd)
 	if err != nil {
@@ -152,7 +170,6 @@ func (dc *DockerfileFromCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err
 	if err != nil {
 		return err
 	}
-	fmt.Printf("grep output: %s\n", outBuf2.String())
 
 	// 10位的容器ID+换行符
 	if len(cmdResult) != 11 {
@@ -228,7 +245,6 @@ func (dc *DockerfileCopyCmd) FormatCheck(buildCtx *BuildContext, cmdLine []strin
 	return cmdLine, true
 }
 func (dc *DockerfileCopyCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err error) {
-	return fmt.Errorf("myerr")
 	// 支持复制单个文件或整个目录
 	var cmd string
 	// 判断是否需要从前面的某个容器往当前容器copy文件
@@ -380,11 +396,86 @@ func (d DockerfileEnvCmd) FormatCheck(buildCtx *BuildContext, cmdLine []string) 
 			return nil, false
 		}
 	}
-	//if len(cmdLine) == 2 && (cmdLine[0] == "PATH" || cmdLine[0] == "path") {
-	//	if !strings.Contains(cmdLine[1], "$PATH") {
-	//		return false
-	//	}
-	//}
+
+	var imageName string
+	// 找到当前ENV处于哪个FROM下
+	for _, line := range buildCtx.CmdLines {
+		if line[0] == "FROM" {
+			imageName = line[1]
+		}
+		if line[0] == "ENV" && line[1] == cmdLine[0] {
+			break
+		}
+	}
+
+	if imageName == "" {
+		return nil, false
+	}
+	_imageName := imageName
+
+	var tag string
+	if strings.Contains(imageName, "@") {
+		names := strings.Split(imageName, "@")
+		imageName = names[0]
+		tag = names[1]
+	} else {
+		tag = "latest"
+	}
+	image := fmt.Sprintf("%s@%s", imageName, tag)
+
+	// 如果镜像在本地不存在 则尝试从镜像服务拉取镜像
+	// 先检查本地是否存在该镜像
+	exist, err := util.ImageIsExist(image)
+	if err != nil {
+		fmt.Println("Env Cmd check: util.ImageIsExist(image) failed: ", err)
+		return nil, false
+	}
+	if !exist {
+		// 本地不存在，则尝试从镜像服务拉取
+		cmd := exec.Command("xdocker", "pull", image)
+		fmt.Println("prepare to pull image from imageHub")
+		err = cmd.Run()
+		if err != nil {
+			fmt.Println("Env Cmd check: PullImage failed: ", err)
+			return nil, false
+		}
+
+		exist, _ = util.ImageIsExist(image)
+		if !exist {
+			fmt.Println("Env Cmd check: image not exist")
+			return nil, false
+		}
+	}
+
+	var envKey string
+	var envVal string
+	if len(cmdLine) == 1 {
+		envArr := strings.Split(cmdLine[0], "=")
+		envKey = envArr[0]
+		envVal = envArr[1]
+	} else {
+		envKey = cmdLine[0]
+		envVal = cmdLine[1]
+	}
+
+	if strings.Contains(envVal, "$PATH") {
+		// 获取已有的PATH值 (echo $PATH 获取不到)
+		cmd := fmt.Sprintf(`xdocker run -it %s env`, image)
+		out, err := util.RunCommand(cmd)
+		if err != nil {
+			return nil, false
+		}
+
+		// 从env的输出中匹配出PATH变量的值
+		re := regexp.MustCompile(`PATH=(.*?)\n`)
+		findArr := re.FindAllStringSubmatch(out, -1)
+		if len(findArr) == 1 {
+			path := findArr[0][1]
+			envVal = strings.ReplaceAll(envVal, "$PATH", path)
+		}
+	}
+
+	buildCtx.Envs[_imageName][envKey] = envVal
 	return cmdLine, true
 }
 func (d DockerfileEnvCmd) Exec(buildCtx *BuildContext, cmdLine []string) error {
@@ -610,7 +701,9 @@ func parseDockerfileCommand(contextDir string, cmdLines [][]string) (*BuildConte
 	buildCtx.ContainerMap = make(map[string]string)
 	buildCtx.Volume = make(map[string]map[string]string)
 	buildCtx.Args = make(map[string]string)
+	buildCtx.Envs = make(map[string]map[string]string)
 	buildCtx.ContextDir = contextDir
+	buildCtx.CmdLines = cmdLines
 
 	// 依次检查命令格式的正确性
 	for i, cmdLine := range cmdLines {
