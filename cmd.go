@@ -430,6 +430,20 @@ var startCommand = cli.Command{
 	},
 }
 
+var restartCommand = cli.Command{
+	Name:                   "restart",
+	Usage:                  "restart a container",
+	Action: func(ctx *cli.Context) error {
+		args := ctx.Args()
+		if len(args) == 0 {
+			return fmt.Errorf("missing container name or container id")
+		}
+
+		container := args.Get(0)
+		return command.ReStartContainer(container)
+	},
+}
+
 var removeCommand = cli.Command{
 	Name:                   "rm",
 	Usage:                  "remove a container",

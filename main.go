@@ -47,6 +47,7 @@ func main() {
 			continueCommand,
 			stopCommand,
 			startCommand,
+			restartCommand,
 			removeCommand,
 			networkCommand,
 		},

@@ -27,7 +27,8 @@
 - continue      恢复容器
 - start      启动一个已停止的容器
 - stop      停止一个运行中的容器
-- rm      移除一个已停止的容器
+- restart   重启一个运行中的容器
+- rm        移除一个已停止的容器
 - build      基于Dockerfile构建镜像 
 - images      列出本地所有的镜像
 - rmi      删除镜像  
