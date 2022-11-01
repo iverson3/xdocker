@@ -45,9 +45,9 @@
 
 #### 主要命令示例：
 
-> xdocker run -it -name xxx -v path1:path2 -net xdocker0 -p 8000:80 busybox sh     运行容器
->
 > xdocker run -it -name xxx  -cpuper 20 -m 100m -e GO111MODULE=on busybox sh    运行容器
+>
+> xdocker run -d -name xxx -v path1:path2 -net xdocker0 -p 8000:80 alpine gotcpserver     运行容器
 >
 > xdocker network create --driver bridge --subnet 192.168.10.1/24 xdocker0     创建网络
 >
