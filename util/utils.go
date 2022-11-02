@@ -10,7 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"studygolang/docker/xdocker/model"
+	"github.com/iverson3/xdocker/model"
 	"time"
 )
 

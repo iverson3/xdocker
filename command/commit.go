@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/util"
 )
 
 // CommitContainer 将容器打包为镜像，存储到xdocker的镜像目录下

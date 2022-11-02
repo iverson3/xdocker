@@ -2,16 +2,16 @@ package command
 
 import (
 	"fmt"
+	"github.com/iverson3/xdocker/cgroups"
+	"github.com/iverson3/xdocker/cgroups/subsystems"
+	"github.com/iverson3/xdocker/container"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/network"
+	"github.com/iverson3/xdocker/util"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
-	"studygolang/docker/xdocker/cgroups"
-	"studygolang/docker/xdocker/cgroups/subsystems"
-	"studygolang/docker/xdocker/container"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/network"
-	"studygolang/docker/xdocker/util"
 	"syscall"
 )
 

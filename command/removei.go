@@ -3,8 +3,8 @@ package command
 import (
 	"fmt"
 	"os"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/util"
 )
 
 func RemoveImage(imageName string) error {

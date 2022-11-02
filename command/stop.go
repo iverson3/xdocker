@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/network"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/network"
+	"github.com/iverson3/xdocker/util"
 	"syscall"
 )
 

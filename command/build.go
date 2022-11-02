@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/util"
 )
 
 // 构建镜像过程中，中间容器的临时数据卷的挂载点目录

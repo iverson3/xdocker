@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 	"strings"
-	"studygolang/docker/xdocker/images"
+	"github.com/iverson3/xdocker/images"
 )
 
 func ListRemoteImage(image string) error {

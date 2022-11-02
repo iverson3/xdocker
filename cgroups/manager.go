@@ -2,7 +2,7 @@ package cgroups
 
 import (
 	"fmt"
-	"studygolang/docker/xdocker/cgroups/subsystems"
+	"github.com/iverson3/xdocker/cgroups/subsystems"
 )
 
 type CgroupManager struct {

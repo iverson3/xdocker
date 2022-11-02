@@ -3,10 +3,10 @@ package command
 import (
 	"fmt"
 	"os"
-	"studygolang/docker/xdocker/cgroups"
-	"studygolang/docker/xdocker/container"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/cgroups"
+	"github.com/iverson3/xdocker/container"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/util"
 )
 
 func RemoveContainer(containerFlag string, force bool) error {

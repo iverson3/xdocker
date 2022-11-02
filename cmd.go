@@ -3,14 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/iverson3/xdocker/cgroups/subsystems"
+	"github.com/iverson3/xdocker/namespace"
+	"github.com/iverson3/xdocker/network"
+	"github.com/iverson3/xdocker/util"
 	"os"
-	"studygolang/docker/xdocker/cgroups/subsystems"
-	"studygolang/docker/xdocker/namespace"
-	"studygolang/docker/xdocker/network"
-	"studygolang/docker/xdocker/util"
 
+	"github.com/iverson3/xdocker/command"
 	"github.com/urfave/cli"
-	"studygolang/docker/xdocker/command"
 )
 
 var initCommand = cli.Command{

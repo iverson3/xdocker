@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/network"
+	"github.com/iverson3/xdocker/util"
 	"github.com/urfave/cli"
 	"os"
 	"runtime"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/network"
-	"studygolang/docker/xdocker/util"
 )
 
 func init() {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"studygolang/docker/xdocker/images"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/images"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/util"
 )
 
 func PushImage(image string) error {

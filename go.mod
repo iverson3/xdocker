@@ -1,4 +1,4 @@
-module studygolang/docker/xdocker
+module github.com/iverson3/xdocker
 
 go 1.17
 

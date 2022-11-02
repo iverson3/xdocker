@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/util"
 )
 
 func GetAllImages() ([]*model.ImageInfo, error) {

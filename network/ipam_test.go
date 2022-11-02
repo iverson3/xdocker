@@ -4,7 +4,7 @@ import (
 	"gotest.tools/assert"
 	"net"
 	"os"
-	"studygolang/docker/xdocker/model"
+	"github.com/iverson3/xdocker/model"
 	"testing"
 )
 

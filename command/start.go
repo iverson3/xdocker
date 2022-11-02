@@ -3,14 +3,14 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/iverson3/xdocker/cgroups"
+	"github.com/iverson3/xdocker/container"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/network"
+	"github.com/iverson3/xdocker/util"
 	"io/ioutil"
 	"strconv"
 	"strings"
-	"studygolang/docker/xdocker/cgroups"
-	"studygolang/docker/xdocker/container"
-	"studygolang/docker/xdocker/model"
-	"studygolang/docker/xdocker/network"
-	"studygolang/docker/xdocker/util"
 	"syscall"
 )
 

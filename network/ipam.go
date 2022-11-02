@@ -7,7 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
-	"studygolang/docker/xdocker/model"
+	"github.com/iverson3/xdocker/model"
 )
 
 // ip分配管理器

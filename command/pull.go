@@ -3,8 +3,8 @@ package command
 import (
 	"fmt"
 	"strings"
-	"studygolang/docker/xdocker/images"
-	"studygolang/docker/xdocker/util"
+	"github.com/iverson3/xdocker/images"
+	"github.com/iverson3/xdocker/util"
 )
 
 func PullImage(image string) error {
