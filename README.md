@@ -74,6 +74,21 @@
 
 
 
+#### 如何运行xdocker
+
+```
+提前：  
+1. 确保golang环境正常
+2. 设置GO111MODULE确保开启gomod   go env -w GO111MODULE="on"
+3. 设置GOPROXY确保依赖正常安装   go env -w GOPROXY=https://goproxy.cn,direct
+
+make build                 在项目根目录下进行make
+cp xdocker /usr/bin/       将可执行文件拷贝到某个PATH目录下 (可略过)
+sudo xdocker images        确保以root权限去执行生成的xdocker可执行文件 (或者直接在root用户下操作)
+```
+
+
+
 #### Dockerfile已支持的命令列表：
 
 - FROM
