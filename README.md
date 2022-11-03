@@ -77,10 +77,10 @@
 #### 如何运行xdocker
 
 ```
-提前：  
+前提：  
 1. 确保golang环境正常
 2. 设置GO111MODULE确保开启gomod   go env -w GO111MODULE="on"
-3. 设置GOPROXY确保依赖正常安装   go env -w GOPROXY=https://goproxy.cn,direct
+3. 设置GOPROXY确保依赖能够正常安装  go env -w GOPROXY=https://goproxy.cn,direct
 
 make build                 在项目根目录下进行make
 cp xdocker /usr/bin/       将可执行文件拷贝到某个PATH目录下 (可略过)
