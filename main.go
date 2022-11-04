@@ -61,6 +61,10 @@ func main() {
 			return err
 		}
 		if !exists {
+			err = network.Init()
+			if err != nil {
+				return err
+			}
 			err = network.CreateNetwork(model.DefaultNetworkDriver, model.DefaultNetworkSubnet, model.DefaultNetworkName)
 			if err != nil {
 				return err
