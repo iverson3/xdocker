@@ -4,14 +4,14 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/iverson3/xdocker/model"
+	"github.com/iverson3/xdocker/util"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"github.com/iverson3/xdocker/model"
-	"github.com/iverson3/xdocker/util"
 )
 
 // 构建镜像过程中，中间容器的临时数据卷的挂载点目录
@@ -189,6 +189,29 @@ func (dc *DockerfileFromCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err
 
 	// 更新当前的容器ID
 	buildCtx.CurContainerId = containerId
+
+	// 为容器配置dns，确保容器内能够解析域名 (默认容器内是没法解析域名的，因为没有配置dns服务ip)
+	// 判断是否存在 /etc/resolv.conf 文件
+	dnsFileName := "resolv.conf"
+	cmd = fmt.Sprintf(`xdocker exec %s sh -c "ls /etc/ | grep %s"`, buildCtx.CurContainerId, dnsFileName)
+	grepRes, err := util.RunCommand(cmd)
+	if err != nil {
+		return err
+	}
+	if grepRes == "" || grepRes == "\n" || grepRes[:len(grepRes) - 1] != dnsFileName {
+		// 文件不存在则创建
+		cmd = fmt.Sprintf("xdocker exec %s touch /etc/%s", buildCtx.CurContainerId, dnsFileName)
+		_, err = util.RunCommand(cmd)
+		if err != nil {
+			return err
+		}
+	}
+	// 在文件中写入一行 nameserver 8.8.8.8  (以追加的方式写入内容)
+	cmd = fmt.Sprintf(`xdocker exec %s echo "nameserver 8.8.8.8" >> /etc/%s`, buildCtx.CurContainerId, dnsFileName)
+	_, err = util.RunCommand(cmd)
+	if err != nil {
+		return err
+	}
 
 	// 设置容器的挂载信息
 	m := make(map[string]string)
@@ -739,7 +762,6 @@ func parseDockerfileCommand(contextDir string, cmdLines [][]string) (*BuildConte
 	}
 
 	fmt.Println(buildCtx.ContainerMap)
-
 	fmt.Println("build success")
 	return buildCtx, nil
 }
