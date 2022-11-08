@@ -264,6 +264,23 @@ var imagesCommand = cli.Command{
 	},
 }
 
+var renameImageCommand = cli.Command{
+	Name:                   "rni",
+	Usage:                  "rename a image name",
+	Action: func(ctx *cli.Context) error {
+		args := ctx.Args()
+		if len(args) != 2 {
+			return fmt.Errorf("missing image name")
+		}
+
+		// 原镜像名
+		oldImageName := args.Get(0)
+		// 新镜像名
+		newImageName := args.Get(1)
+		return command.RenameImage(oldImageName, newImageName)
+	},
+}
+
 var removeImageCommand = cli.Command{
 	Name:                   "rmi",
 	Usage:                  "remove a image local",

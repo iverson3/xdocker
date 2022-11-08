@@ -37,6 +37,7 @@ func main() {
 			pushCommand,
 			exportCommand,
 			imagesCommand,
+			renameImageCommand,
 			removeImageCommand,
 			buildCommand,
 			psCommand,

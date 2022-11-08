@@ -702,7 +702,7 @@ func BuildImageWithDockerFile(contextPath, imageNameTag, dockerFilePath string) 
 	}
 
 	// 将镜像改名为用户设置的镜像名和tag
-	err = RenameImage(buildCtx.CurContainerId, imageName, tag)
+	err = renameImage(buildCtx.CurContainerId, imageName, tag)
 	if err != nil {
 		fmt.Printf("export container to image failed, error: %v\n", err)
 	}
@@ -815,8 +815,8 @@ func CleanContainer(containerId string) error {
 	return nil
 }
 
-// RenameImage 重命名镜像压缩文件
-func RenameImage(containerId, imageName, tag string) error {
+// 重命名镜像压缩文件
+func renameImage(containerId, imageName, tag string) error {
 	oldPath := fmt.Sprintf("%s%s.tar", model.DefaultImagePath, containerId)
 	newPath := fmt.Sprintf("%s%s@%s.tar", model.DefaultImagePath, imageName, tag)
 	return os.Rename(oldPath, newPath)
