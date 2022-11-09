@@ -564,9 +564,13 @@ func CheckNetworkExists(networkName string) (bool, error) {
 
 func RunCommand(cmdLine string, args ...string) (string, error) {
 	cmdArgs := strings.Split(cmdLine, " ")
-	args = append(cmdArgs[1:], args...)
+	if len(args) == 0 {
+		args = cmdArgs[1:]
+	} else {
+		args = append(cmdArgs[1:], args...)
+	}
 	cmd := exec.Command(cmdArgs[0], args...)
-	fmt.Printf("Run Cmd: %s\n", cmd.String())
+	//fmt.Printf("Run Cmd: %s\n", cmd.String())
 	// 使用缓冲区接收命令执行的输出和错误输出
 	var outBuf bytes.Buffer
 	var errBuf bytes.Buffer

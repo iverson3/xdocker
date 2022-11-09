@@ -193,22 +193,20 @@ func (dc *DockerfileFromCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err
 	// 为容器配置dns，确保容器内能够解析域名 (默认容器内是没法解析域名的，因为没有配置dns服务ip)
 	// 判断是否存在 /etc/resolv.conf 文件
 	dnsFileName := "resolv.conf"
-	cmd = fmt.Sprintf(`xdocker exec %s sh -c "ls /etc/ | grep %s"`, buildCtx.CurContainerId, dnsFileName)
-	grepRes, err := util.RunCommand(cmd)
+	cmd = fmt.Sprintf(`xdocker exec %s`, buildCtx.CurContainerId)
+	grepRes, err := util.RunCommand(cmd, fmt.Sprintf("ls /etc/ | grep %s", dnsFileName))
 	if err != nil {
 		return err
 	}
 	if grepRes == "" || grepRes == "\n" || grepRes[:len(grepRes) - 1] != dnsFileName {
 		// 文件不存在则创建
-		cmd = fmt.Sprintf("xdocker exec %s touch /etc/%s", buildCtx.CurContainerId, dnsFileName)
-		_, err = util.RunCommand(cmd)
+		_, err = util.RunCommand(cmd, fmt.Sprintf("touch /etc/%s", dnsFileName))
 		if err != nil {
 			return err
 		}
 	}
 	// 在文件中写入一行 nameserver 8.8.8.8  (以追加的方式写入内容)
-	cmd = fmt.Sprintf(`xdocker exec %s echo "nameserver 8.8.8.8" >> /etc/%s`, buildCtx.CurContainerId, dnsFileName)
-	_, err = util.RunCommand(cmd)
+	_, err = util.RunCommand(cmd, fmt.Sprintf(`echo "nameserver 8.8.8.8" >> /etc/%s`, dnsFileName))
 	if err != nil {
 		return err
 	}
@@ -235,8 +233,8 @@ func (dc *DockerfileWorkDirCmd) Exec(buildCtx *BuildContext, cmdLine []string) (
 	workDir := cmdLine[0]
 	// 在容器中创建该工作目录，不存在才会创建，存在则忽略
 	// mkdir -p dirname    -p 创建多级目录并自动忽略已存在的目录
-	cmd := fmt.Sprintf("xdocker exec %s mkdir -p %s", buildCtx.CurContainerId, workDir)
-	_, err = util.RunCommand(cmd)
+	cmd := fmt.Sprintf("xdocker exec %s", buildCtx.CurContainerId)
+	_, err = util.RunCommand(cmd, fmt.Sprintf("mkdir -p %s", workDir))
 	if err != nil {
 		return err
 	}
@@ -389,8 +387,8 @@ func (dc *DockerfileRunCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err 
 	}
 
 	// xdocker exec 8995034752 cd /usr/local/ && cat xxx
-	cmd := fmt.Sprintf("xdocker exec %s %s", buildCtx.CurContainerId, todoCmd)
-	_, err = util.RunCommand(cmd)
+	cmd := fmt.Sprintf("xdocker exec %s", buildCtx.CurContainerId)
+	_, err = util.RunCommand(cmd, todoCmd)
 	if err != nil {
 		return err
 	}
@@ -502,42 +500,15 @@ func (d DockerfileEnvCmd) FormatCheck(buildCtx *BuildContext, cmdLine []string) 
 	return cmdLine, true
 }
 func (d DockerfileEnvCmd) Exec(buildCtx *BuildContext, cmdLine []string) error {
-	// 判断 /etc/bashrc文件是否存在
-	//lsCmd := exec.Command("xdocker", "exec", buildCtx.CurContainerId, "ls", "/etc/")
-	//var lsOutBuf bytes.Buffer
-	//var lsErrBuf bytes.Buffer
-	//lsCmd.Stdout = &lsOutBuf
-	//lsCmd.Stderr = &lsErrBuf
-	//err := lsCmd.Run()
-	//fmt.Printf("out: %s\n", lsOutBuf.String())
-	//fmt.Printf("err: %s\n", lsErrBuf.String())
-	//if err != nil {
-	//	return err
-	//}
-	//grepCmd := exec.Command("grep", "bashrc")
-	//var grepOutBuf bytes.Buffer
-	//var grepErrBuf bytes.Buffer
-	//grepCmd.Stdout = &grepOutBuf
-	//grepCmd.Stderr = &grepErrBuf
-	//grepCmd.Stdin = &lsOutBuf    // 将上面ls命令的输出作为grep命令的输入
-	//err = grepCmd.Run()
-	//fmt.Printf("grep out: %s\n", grepOutBuf.String())
-	//fmt.Printf("grep err: %s\n", grepErrBuf.String())
-	//if err != nil {
-	//	fmt.Println("grep: ", err)
-	//	return err
-	//}
-
 	// 判断/etc/bashrc 文件是否存在
-	lsCmd := fmt.Sprintf(`xdocker exec %s sh -c "ls /etc/ | grep bashrc"`, buildCtx.CurContainerId)
-	grepRes, err := util.RunCommand(lsCmd)
+	cmd := fmt.Sprintf(`xdocker exec %s`, buildCtx.CurContainerId)
+	grepRes, err := util.RunCommand(cmd, "ls /etc/ | grep bashrc")
 	if err != nil {
 		return err
 	}
 	if grepRes == "" || grepRes == "\n" || grepRes[:len(grepRes) - 1] != "bashrc" {
 		// 不存在/etc/bashrc文件则创建
-		touchCmd := fmt.Sprintf("xdocker exec %s touch /etc/bashrc", buildCtx.CurContainerId)
-		_, err = util.RunCommand(touchCmd)
+		_, err = util.RunCommand(cmd, "touch /etc/bashrc")
 		if err != nil {
 			return err
 		}
@@ -562,16 +533,13 @@ func (d DockerfileEnvCmd) Exec(buildCtx *BuildContext, cmdLine []string) error {
 	}
 
 	// 修改/etc/bashrc，在文件末尾追加内容；并通过source命令使其生效
-	cmd := fmt.Sprintf(`xdocker exec %s echo "export %s=%s" >> /etc/bashrc && . /etc/bashrc`, buildCtx.CurContainerId, envKey, envVal)
 	//cmd := fmt.Sprintf(`xdocker exec %s echo "export %s=%s" >> /etc/profile && source /etc/profile`, buildCtx.CurContainerId, envKey, envVal)
-	//cmd := fmt.Sprintf(`xdocker exec %s echo "export %s=%s" >> /etc/profile`, buildCtx.CurContainerId, envKey, envVal)
-	_, err = util.RunCommand(cmd)
+	_, err = util.RunCommand(cmd, fmt.Sprintf(`echo "export %s=%s" >> /etc/bashrc`, envKey, envVal))
 	if err != nil {
 		return err
 	}
 
-	sourceCmd := fmt.Sprintf(`xdocker exec %s sh -c`, buildCtx.CurContainerId)
-	_, err = util.RunCommand(sourceCmd, "source /etc/bashrc")
+	_, err = util.RunCommand(cmd, "source /etc/bashrc")
 	if err != nil {
 		return err
 	}
@@ -755,8 +723,8 @@ func parseDockerfileCommand(contextDir string, cmdLines [][]string) (*BuildConte
 	}
 
 	// 额外再执行一个命令，创建 /dev/null 文件
-	cmd := fmt.Sprintf(`xdocker exec %s touch /dev/null`, buildCtx.CurContainerId)
-	_, err := util.RunCommand(cmd)
+	cmd := fmt.Sprintf(`xdocker exec %s`, buildCtx.CurContainerId)
+	_, err := util.RunCommand(cmd, "touch /dev/null")
 	if err != nil {
 		fmt.Println("Build: touch /dev/null failed: ", err)
 	}
