@@ -56,6 +56,20 @@ func main() {
 
 	// 前置处理
 	app.Before = func(ctx *cli.Context) error {
+		// 这里是获取不到各种选项参数的
+		// 确保宿主机开启了ip转发功能
+		isOpen, err := checkIpForward()
+		if err != nil {
+			return err
+		}
+		if !isOpen {
+			// 打开
+			err = openIpForward()
+			if err != nil {
+				return err
+			}
+		}
+
 		// 判断是否已存在默认的网络，如果不存在则创建该网络 作为容器默认连接的网络
 		exists, err := util.CheckNetworkExists(model.DefaultNetworkName)
 		if err != nil {
@@ -186,5 +200,28 @@ func initXdockerPath() error {
 		}
 	}
 
+	return nil
+}
+
+// 判断ip转发功能是否打开
+func checkIpForward() (bool, error) {
+	cmd := "cat /proc/sys/net/ipv4/ip_forward"
+	out, err := util.RunCommand(cmd)
+	if err != nil {
+		return false, err
+	}
+	if out[:len(out)-1] != "1" {
+		return false, nil
+	}
+	return true, nil
+}
+
+// 开启ip转发功能
+func openIpForward() error {
+	cmd := "sh -c"
+	_, err := util.RunCommand(cmd, "echo 1 > /proc/sys/net/ipv4/ip_forward")
+	if err != nil {
+		return err
+	}
 	return nil
 }

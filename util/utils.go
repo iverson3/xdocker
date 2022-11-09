@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/iverson3/xdocker/model"
 	"io/fs"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
 	"strings"
-	"github.com/iverson3/xdocker/model"
 	"time"
 )
 
@@ -562,9 +562,10 @@ func CheckNetworkExists(networkName string) (bool, error) {
 	return exist, nil
 }
 
-func RunCommand(cmdLine string) (string, error) {
+func RunCommand(cmdLine string, args ...string) (string, error) {
 	cmdArgs := strings.Split(cmdLine, " ")
-	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
+	args = append(cmdArgs[1:], args...)
+	cmd := exec.Command(cmdArgs[0], args...)
 	fmt.Printf("Run Cmd: %s\n", cmd.String())
 	// 使用缓冲区接收命令执行的输出和错误输出
 	var outBuf bytes.Buffer

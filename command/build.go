@@ -570,8 +570,8 @@ func (d DockerfileEnvCmd) Exec(buildCtx *BuildContext, cmdLine []string) error {
 		return err
 	}
 
-	sourceCmd := fmt.Sprintf(`xdocker exec %s sh -c "source /etc/bashrc"`, buildCtx.CurContainerId)
-	_, err = util.RunCommand(sourceCmd)
+	sourceCmd := fmt.Sprintf(`xdocker exec %s sh -c`, buildCtx.CurContainerId)
+	_, err = util.RunCommand(sourceCmd, "source /etc/bashrc")
 	if err != nil {
 		return err
 	}
