@@ -553,3 +553,49 @@ var networkCommand = cli.Command{
 		},
 	},
 }
+
+var testCommand = cli.Command{
+	Name:                   "test",
+	Usage:                  "just for test",
+	Action: func(ctx *cli.Context) error {
+		args := ctx.Args()
+
+		container := args.Get(0)
+		return test(container)
+	},
+}
+
+func test(container string) error {
+	envKey := "GO222"
+	envVal := "222"
+
+	touchCmd := fmt.Sprintf(`xdocker exec %s`, container)
+	out, err := util.RunCommand(touchCmd, "touch /etc/bashrc")
+	if err != nil {
+		return err
+	}
+
+	lsCmd := fmt.Sprintf(`xdocker exec %s`, container)
+	out, err = util.RunCommand(lsCmd, fmt.Sprintf("ls /etc/ | grep bashrc"))
+	if err != nil {
+		return err
+	}
+	fmt.Println("lsCmd: ", out)
+
+	// 修改/etc/bashrc，在文件末尾追加内容；并通过source命令使其生效
+	cmd := fmt.Sprintf(`xdocker exec %s`, container)
+	args := fmt.Sprintf(`echo "export %s=%s" >> /etc/bashrc`, envKey, envVal)
+	out, err = util.RunCommand(cmd, args)
+	if err != nil {
+		return err
+	}
+	fmt.Println(out)
+
+	sourceCmd := fmt.Sprintf(`xdocker exec %s`, container)
+	out, err = util.RunCommand(sourceCmd, "source /etc/bashrc")
+	if err != nil {
+		return err
+	}
+	fmt.Println(out)
+	return nil
+}

@@ -51,6 +51,7 @@ func main() {
 			restartCommand,
 			removeCommand,
 			networkCommand,
+			testCommand,
 		},
 	}
 
