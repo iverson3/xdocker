@@ -323,9 +323,7 @@ func (dc *DockerfileCopyCmd) Exec(buildCtx *BuildContext, cmdLine []string) (err
 		srcFullPathOnHost := filepath.Join(buildCtx.ContextDir, src)
 		containerRoot := fmt.Sprintf(model.DefaultContainerRoot, buildCtx.CurContainerId)
 		dstFullPathOnHost := filepath.Join(containerRoot, "mnt/", buildCtx.WorkDir, dst)
-
-		fmt.Println(srcFullPathOnHost)
-		fmt.Println(dstFullPathOnHost)
+		_ = dstFullPathOnHost
 
 		// 容器中的目录
 		srcFullPath := filepath.Join(defaultMountPoint, src)

@@ -33,8 +33,8 @@ const (
 	// ContainerLogFileName 日志文件名
 	ContainerLogFileName = "container.log"
 
-	// DefaultServerUrl 镜像仓库服务域名
-	DefaultServerUrl = "http://81.69.56.251:8888"
+	// DefaultImageHubServerUrl 默认的镜像仓库服务域名
+	DefaultImageHubServerUrl = "http://81.69.56.251:8888"
 	PushUrl = "/images/push"
 	PullUrl = "/images/pull"
 	ListUrl = "/images/list"
@@ -61,6 +61,6 @@ type ImageInfo struct {
 	ID string `json:"id"`
 	Name string `json:"name"`
 	Size string `json:"size"`
-	TAG string `json:"'tag'"`    // 版本
+	TAG string `json:"tag"`    // 版本
 	CreateTime string `json:"createTime"`
 }

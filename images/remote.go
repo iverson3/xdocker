@@ -5,17 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/iverson3/xdocker/config"
+	"github.com/iverson3/xdocker/model"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
-	"github.com/iverson3/xdocker/model"
 )
 
 func DoSearchImageRequest(keyword string) ([]string, error) {
-	url := fmt.Sprintf("%s%s?keyword=%s", model.DefaultServerUrl, model.SearchUrl, keyword)
+	url := fmt.Sprintf("%s%s?keyword=%s", config.ImageHubServerUrl, model.SearchUrl, keyword)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -42,7 +43,7 @@ func DoSearchImageRequest(keyword string) ([]string, error) {
 }
 
 func FetchImageList(imageName string) ([]string, error) {
-	url := fmt.Sprintf("%s%s?imagename=%s", model.DefaultServerUrl, model.ListUrl, imageName)
+	url := fmt.Sprintf("%s%s?imagename=%s", config.ImageHubServerUrl, model.ListUrl, imageName)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -70,7 +71,7 @@ func FetchImageList(imageName string) ([]string, error) {
 }
 
 func DownloadImage(imageName, tag string) (err error) {
-	url := fmt.Sprintf("%s%s", model.DefaultServerUrl, model.PullUrl)
+	url := fmt.Sprintf("%s%s", config.ImageHubServerUrl, model.PullUrl)
 
 	postData := make(map[string]interface{})
 	postData["imagename"] = imageName
@@ -127,7 +128,7 @@ func DownloadImage(imageName, tag string) (err error) {
 }
 
 func UploadImage(tarPath, imageName, tag string) (err error) {
-	url := fmt.Sprintf("%s%s", model.DefaultServerUrl, model.PushUrl)
+	url := fmt.Sprintf("%s%s", config.ImageHubServerUrl, model.PushUrl)
 
 	imageFile, err := os.Open(tarPath)
 	if err != nil {

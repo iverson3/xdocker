@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/iverson3/xdocker/config"
 	"github.com/iverson3/xdocker/model"
 	"github.com/iverson3/xdocker/network"
 	"github.com/iverson3/xdocker/util"
@@ -11,7 +12,13 @@ import (
 )
 
 func init() {
-	err := checkSystemRequire()
+	err := config.ParseConfig()
+	if err != nil {
+		// 解析配置文件失败也不影响程序的正常执行，会使用默认配置值
+		fmt.Printf("ParseConfig failed: %v\n", err)
+	}
+
+	err = checkSystemRequire()
 	if err != nil {
 		panic(err)
 	}
@@ -81,7 +88,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			err = network.CreateNetwork(model.DefaultNetworkDriver, model.DefaultNetworkSubnet, model.DefaultNetworkName)
+			err = network.CreateNetwork(model.DefaultNetworkDriver, config.ContainerNetworkSubnet, model.DefaultNetworkName)
 			if err != nil {
 				return err
 			}
