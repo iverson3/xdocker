@@ -31,6 +31,7 @@
 - rm        移除一个已停止的容器
 - build      基于Dockerfile构建镜像 
 - images      列出本地所有的镜像
+- rni       重命名镜像  
 - rmi      删除镜像  
 - commit      基于容器创建一个新的镜像
 - export      将容器打包为tar并导出
@@ -100,6 +101,19 @@ sudo xdocker images        确保以root权限去执行生成的xdocker可执行
 - ENTRYPOINT
 
 *具体示例可查看Dockerfile文件*
+
+
+
+#### 配置文件支持的配置项：
+
+> image_hub_server_host          镜像仓库服务地址    （默认地址：81.69.56.251:8888）
+>
+> container_network_subnet      容器网络使用的子网网段    （默认网段：192.168.10.1/24）
+
+注意：
+
+1. 目前镜像仓库服务必须配置为提供的默认地址，容器网段可根据自己的需求配置
+2. 不强制必须有配置文件，无配置文件会使用默认的配置值
 
 
 
